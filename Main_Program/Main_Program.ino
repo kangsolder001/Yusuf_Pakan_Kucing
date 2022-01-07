@@ -7,8 +7,10 @@
 #define DOUT  23
 #define CLK  19
 //=====================WiFi==================================
-const char* ssid = "NOMOREDOTAFORTOMMOROW"; // IT-DEV
-const char* password = "N0m0r3d0t4";
+//const char* ssid = "NOMOREDOTAFORTOMMOROW"; // IT-DEV
+//const char* password = "N0m0r3d0t4";
+const char* ssid = "Yusuf"; // IT-DEV
+const char* password = "p3rbanas";
 //=====================Load Cell=============================
 HX711 scale;
 float calibration_factor = 334;
@@ -66,7 +68,9 @@ void setup() {
   Serial.println(sizeArray);
 }
 unsigned long  prevPrint;
+unsigned long prevSendVolume;
 void loop() {
+  SerialTest();
   wifi_reconnect();
   if ( year() == 1970 )
   {
@@ -77,7 +81,15 @@ void loop() {
   {
     Serial.print("Time Now = ");
     Serial.println(timeNow);
+    Serial.print("gram now = ");
+    Serial.println(readGram());
     prevPrint = millis();
+  }
+  if ( millis() - prevSendVolume >= 600000)
+  {
+    float Volume = readVolume();
+    //    int persen = mapFloat(Volume,MaxVolume,0,100);
+    //    SendVolumetoBylnk
   }
   unsigned long H = hour();
   unsigned long M = minute();
