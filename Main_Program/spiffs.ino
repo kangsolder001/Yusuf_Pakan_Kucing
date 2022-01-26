@@ -1,15 +1,3 @@
-
-void savetoSpiffs(String jsonData)
-{
-  String dataMem;
-  readFile(SPIFFS, "/json.json", dataMem);
-  delay(10);
-//  dataMem = addJson(dataMem, jsonData);
-  writeFile(SPIFFS, "/json.json", dataMem);
-  Serial.println("Save to SPIFFS done");
-}
-
-
 void readFile(fs::FS &fs, const char * path, String &in) 
 {
   File file = fs.open(path);

@@ -12,9 +12,6 @@
 
 #define DOUT  23
 #define CLK  19
-//=====================WiFi==================================
-//const char* ssid = "NOMOREDOTAFORTOMMOROW"; // IT-DEV
-//const char* password = "N0m0r3d0t4";
 //=====================Load Cell=============================
 HX711 scale;
 float calibration_factor = 334;
@@ -43,7 +40,6 @@ bool bFeed = true;
 //==================Bylnk ===================================
 BlynkTimer timer;
 char auth[] = "ASeKdiRLR4DAZl64hYsZ7CBZOtFYQEKe";
-
 char ssid[] = "NOMOREDOTAFORTOMMOROW";
 char pass[] = "N0m0r3d0t4";
 
@@ -150,7 +146,6 @@ void loop() {
   {
     Volume = readVolume();
     int persen = mapfloat(a, MinVolume, MaxVolume);
-    //    SendVolumetoBylnk
   }
   unsigned long H = hour();
   unsigned long M = minute();
