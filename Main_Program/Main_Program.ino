@@ -3,14 +3,18 @@
 #include <WiFiUdp.h>
 #include "HX711.h"
 #include<ESP32Servo.h>
+#include "FS.h"
+#include "SPIFFS.h"
+#define BLYNK_PRINT Serial
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <BlynkSimpleEsp32.h>
 
 #define DOUT  23
 #define CLK  19
 //=====================WiFi==================================
 //const char* ssid = "NOMOREDOTAFORTOMMOROW"; // IT-DEV
 //const char* password = "N0m0r3d0t4";
-const char* ssid = "Yusuf"; // IT-DEV
-const char* password = "p3rbanas";
 //=====================Load Cell=============================
 HX711 scale;
 float calibration_factor = 334;
@@ -31,38 +35,94 @@ unsigned int localPort = 8888;
 time_t getNtpTime();
 void sendNTPpacket(IPAddress &address);
 // ===============variable Jadwal ===========================
-unsigned int jHour[5];
-unsigned int jMinute[5];
-unsigned int jPortion[5];
+int jHour[5];
+int jMinute[5];
+int jPortion[5];
 unsigned int sizeArray;
 bool bFeed = true;
+//==================Bylnk ===================================
+BlynkTimer timer;
+char auth[] = "ASeKdiRLR4DAZl64hYsZ7CBZOtFYQEKe";
+
+char ssid[] = "NOMOREDOTAFORTOMMOROW";
+char pass[] = "N0m0r3d0t4";
+
+uint32_t schedule[4];
+const char* pathSchedule[] = {"/schedule1.txt", "/schedule2.txt", "/schedule3.txt"};
+const char* pathPortion[] = {"/portion1.txt", "/portion2.txt", "/portion3.txt"};
+
+float MinVolume = 4;
+float MaxVolume = 10;
+float Volume;
+BLYNK_WRITE(V3)
+{
+  jPortion[0] = param.asInt();
+  writeFile(SPIFFS, pathPortion[0],  String(jPortion[0]));
+  Serial.print("Portion ");
+  Serial.print("0");
+  Serial.print(" : ");
+  Serial.println(jPortion[0]);
+}
+BLYNK_WRITE(V4)
+{
+  jPortion[1] = param.asInt();
+  writeFile(SPIFFS, pathPortion[1],  String(jPortion[1]));
+  Serial.print("Portion ");
+  Serial.print("1");
+  Serial.print(" : ");
+  Serial.println(jPortion[1]);
+}
+BLYNK_WRITE(V5)
+{
+  jPortion[2] = param.asInt();
+  writeFile(SPIFFS, pathPortion[2],  String(jPortion[2]));
+  Serial.print("Portion ");
+  Serial.print("2");
+  Serial.print(" : ");
+  Serial.println(jPortion[2]);
+}
+BLYNK_WRITE(V0)
+{
+  schedule[0] = param.asInt();
+  writeFile(SPIFFS, pathSchedule[0],  String(schedule[0]));
+  secondtoHandM(schedule[0], jHour[0], jMinute[0]);
+}
+BLYNK_WRITE(V1)
+{
+  schedule[1] = param.asInt();
+  writeFile(SPIFFS, pathSchedule[1],  String(schedule[1]));
+  secondtoHandM(schedule[1], jHour[1], jMinute[1]);
+}
+BLYNK_WRITE(V2)
+{
+  schedule[2] = param.asInt();
+  writeFile(SPIFFS, pathSchedule[2],  String(schedule[2]));
+  secondtoHandM(schedule[2], jHour[2], jMinute[2]);
+}
+void myTimerEvent()
+{
+  Blynk.virtualWrite(V6, Volume);
+}
 void setup() {
   Serial.begin(115200);
-  wifi();
+  SPIFFS.begin();
+  Blynk.begin(auth, ssid, pass);
+  timer.setInterval(10000L, myTimerEvent);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
-
   ESP32PWM::allocateTimer(0);
   ESP32PWM::allocateTimer(1);
   ESP32PWM::allocateTimer(2);
   ESP32PWM::allocateTimer(3);
   servo.setPeriodHertz(50);// Standard 50hz servo
 
+  getDatafromFile();
   scale.begin(DOUT, CLK);
   scale.set_scale();
   long zero_factor = scale.read_average();
   Serial.print("Zero factor: ");
   Serial.println(zero_factor);
   delay(1000);
-  jHour[0] = 7;
-  jHour[1] = 12;
-  jHour[2] = 21;
-  jMinute[0] = 0;
-  jMinute[1] = 0;
-  jMinute[2] = 55;
-  jPortion[0] = 100;
-  jPortion[1] = 100;
-  jPortion[1] = 100;
   sizeArray = sizeof(jHour) / sizeof(jHour[0]);
   Serial.print("size Array =");
   Serial.println(sizeArray);
@@ -70,25 +130,26 @@ void setup() {
 unsigned long  prevPrint;
 unsigned long prevSendVolume;
 void loop() {
+  timer.run();
+  Blynk.run();
   SerialTest();
-  wifi_reconnect();
   if ( year() == 1970 )
   {
     ntpBegin();
   }
   String timeNow = getFulldate();
-  if ( millis() - prevPrint >= 1000)
+  //  if ( millis() - prevPrint >= 1000)
+  //  {
+  //    Serial.print("Time Now = ");
+  //    Serial.println(timeNow);
+  //    Serial.print("gram now = ");
+  //    Serial.println(readGram());
+  //    prevPrint = millis();
+  //  }
+  if ( millis() - prevSendVolume >= 10000)
   {
-    Serial.print("Time Now = ");
-    Serial.println(timeNow);
-    Serial.print("gram now = ");
-    Serial.println(readGram());
-    prevPrint = millis();
-  }
-  if ( millis() - prevSendVolume >= 600000)
-  {
-    float Volume = readVolume();
-    //    int persen = mapFloat(Volume,MaxVolume,0,100);
+    Volume = readVolume();
+    int persen = mapfloat(a, MinVolume, MaxVolume);
     //    SendVolumetoBylnk
   }
   unsigned long H = hour();

@@ -7,5 +7,14 @@ void SerialTest()
     {
       feed(1000);
     }
+    else if ( in == "read")
+    {
+      getDatafromFile();
+    }
+    else
+    {
+      int a = in.toInt();
+      Serial.println(mapfloat(a, MinVolume, MaxVolume));
+    }
   }
 }

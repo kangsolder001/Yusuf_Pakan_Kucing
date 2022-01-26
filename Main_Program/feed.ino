@@ -12,3 +12,9 @@ void feed(unsigned int portion)
   moveServo(closeServo);
   Serial.print("Close Servo");
 }
+
+
+unsigned int mapfloat(float x, float in_min, float in_max)
+{
+  return (x - in_min) * (0 - 100) / (in_max - in_min) + 100;
+}
