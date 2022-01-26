@@ -16,5 +16,14 @@ void feed(unsigned int portion)
 
 unsigned int mapfloat(float x, float in_min, float in_max)
 {
-  return (x - in_min) * (0 - 100) / (in_max - in_min) + 100;
+  int output =  (x - in_min) * (0 - 100) / (in_max - in_min) + 100;
+  if ( output < 0)
+  {
+    output = 0;
+  }
+  else if ( output > 100)
+  {
+    output = 100;
+  }
+  return output;
 }

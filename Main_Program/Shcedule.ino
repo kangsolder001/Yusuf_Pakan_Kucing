@@ -16,5 +16,15 @@ void getDatafromFile()
     readFile(SPIFFS, pathPortion[i],  in);
     int Portion = in.toInt();
     jPortion[i] = Portion;
+    Serial.print("Schedule = ");
+    Serial.println(i);
+    Serial.print("Time in Second = ");
+    Serial.println(timeInput);
+    Serial.print("Hour = ");
+    Serial.println(jHour[i]);
+    Serial.print("Minute = ");
+    Serial.println(jMinute[i]);
+    Serial.print("Portion = ");
+    Serial.println(jPortion[i]);
   }
 }
